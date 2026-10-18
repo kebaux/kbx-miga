@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "kbx_miga",
+  "project_id": "7607818f-446c-41e6-94d0-6082f46adaed"
+}
