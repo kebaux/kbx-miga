@@ -1,0 +1,65 @@
+{
+  "scenario": "A08",
+  "brief": "Compaction summaries and truncated sources keep their source kinds; no reconstructed text appears as an original quotation.",
+  "review": "truncated: the large tool result is kind tool_result, completeness truncated, with two separate segments; the rendered view shows the omission marker between them and never presents joined text as one quote. compaction: the summary part is kind compaction_summary (agent-authored), and the interpretation does not treat summary text as the user's or assistant's original words.",
+  "cases": [
+    {
+      "name": "truncated",
+      "steps": [
+        {
+          "prompt": "Use the bash tool to run exactly: seq 1 3000 . Then reply with only the last number it printed."
+        },
+        {
+          "capture": "the seq output"
+        }
+      ],
+      "check": {
+        "parts": [
+          {
+            "kind": "tool_result",
+            "completeness": "truncated"
+          }
+        ]
+      },
+      "tools": [
+        "bash"
+      ]
+    },
+    {
+      "name": "compaction",
+      "steps": [
+        {
+          "prompt": "In 4 sentences: how does a write-ahead log make a database crash-safe?"
+        },
+        {
+          "prompt": "In 3 sentences: what is a checkpoint in that context, and why does it bound recovery time?"
+        },
+        {
+          "prompt": "In 3 sentences: how does group commit trade latency for throughput?"
+        },
+        {
+          "compact": true
+        },
+        {
+          "prompt": "In one sentence: does fsync matter here?"
+        },
+        {
+          "capture": "the write-ahead log explanation"
+        }
+      ],
+      "check": {
+        "parts": [
+          {
+            "kind": "compaction_summary",
+            "completeness": "complete"
+          }
+        ]
+      },
+      "config": {
+        "compaction": {
+          "keepRecentTokens": 200
+        }
+      }
+    }
+  ]
+}

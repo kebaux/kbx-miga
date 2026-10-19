@@ -1,0 +1,25 @@
+{
+  "scenario": "A02",
+  "brief": "\"That thing\" resolves from the supplied episode when clear; ambiguity produces needs_context without invented purpose.",
+  "review": "clear: ready, and the inferred subject is the single subject of the episode (Postgres VACUUM / bloat). ambiguous: needs_context; missing_context names the competing subjects or the ambiguity and no purpose is invented.",
+  "cases": [
+    {
+      "name": "clear",
+      "steps": [
+        { "prompt": "In 3 sentences: what does Postgres VACUUM do, and why does table bloat happen?" },
+        { "capture": "that thing you just explained" }
+      ],
+      "check": { "state": ["ready"] }
+    },
+    {
+      "name": "ambiguous",
+      "steps": [
+        { "prompt": "In 2 sentences: what is CSS flexbox for?" },
+        { "prompt": "In 2 sentences: what does Postgres VACUUM do?" },
+        { "prompt": "In 2 sentences: what is a Bloom filter?" },
+        { "capture": "that thing" }
+      ],
+      "check": { "state": ["needs_context"] }
+    }
+  ]
+}

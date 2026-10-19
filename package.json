@@ -1,0 +1,21 @@
+{
+  "name": "omp-capture",
+  "type": "module",
+  "private": true,
+  "omp": {
+    "extensions": ["./extension/index.ts"]
+  },
+  "scripts": {
+    "typecheck": "tsc -p .",
+    "test": "bun test",
+    "check": "scripts/check-invariants.sh"
+  },
+  "devDependencies": {
+    "@oh-my-pi/pi-ai": "18.12.1",
+    "@oh-my-pi/pi-coding-agent": "18.12.1",
+    "@oh-my-pi/pi-tui": "18.12.1",
+    "@oh-my-pi/pi-utils": "18.12.1",
+    "@types/bun": "1.4.3",
+    "typescript": "7.0.2"
+  }
+}

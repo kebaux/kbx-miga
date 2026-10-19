@@ -5,3 +5,9 @@
 .beads-credential-key
 .beads/proxieddb/
 *.gate.lock*
+
+# Bun dev dependencies
+node_modules/
+
+# Scenario runner outputs (scripts/scenarios.sh): seeded sessions and capture records
+.scenarios/

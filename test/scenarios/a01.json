@@ -1,0 +1,15 @@
+{
+  "scenario": "A01",
+  "brief": "A precise topic is captured with the actual task, trigger, and learning question; no lesson is generated.",
+  "review": "ready; topic, question, situation and trigger match the payment-webhook retry episode and the user's request; the assistant's suggested fix stays attributed to the assistant; no lesson, advice, or explanation of the concept beyond what the parts say.",
+  "cases": [
+    {
+      "name": "precise",
+      "steps": [
+        { "prompt": "I'm adding automatic retries to our payment webhook handler. In 4 sentences: why could a retry charge a customer twice, and what would you change?" },
+        { "capture": "why a retry can double-charge and what an idempotency key does here" }
+      ],
+      "check": { "state": ["ready"] }
+    }
+  ]
+}

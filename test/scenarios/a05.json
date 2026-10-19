@@ -1,0 +1,15 @@
+{
+  "scenario": "A05",
+  "brief": "An assistant's speculative diagnosis remains attributed; agent-originated content with a user role is not treated as the user's intention.",
+  "review": "The assistant's hypothesis appears only as the assistant's tentative guess (not as an established cause and not as the user's belief or intention); the question is the user's. The user-role-with-agent-attribution half of A05 is covered by the unit test 'agent-originated content keeps agent authorship and original roles (A05)', because the OMP CLI cannot author such a message.",
+  "cases": [
+    {
+      "name": "speculative",
+      "steps": [
+        { "prompt": "Our nightly billing job sometimes processes the same order twice. Do not run any tools or change anything. Give one tentative hypothesis in 2 sentences, and say clearly that it is only a guess." },
+        { "capture": "the possible cause you guessed" }
+      ],
+      "check": { "state": ["ready", "needs_context"] }
+    }
+  ]
+}
