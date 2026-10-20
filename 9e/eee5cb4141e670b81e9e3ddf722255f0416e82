@@ -1,0 +1,84 @@
+.beads/issues.jsonl
+  h_df085a9da41ca5 1-10
+.gitignore
+  h_df085a9da41ca5 8-13
+README.md
+  h_df085a9da41ca5 1-119
+bun.lock
+  h_df085a9da41ca5 1-384
+docs/plans/2026-10-18-omp-learning-capture-extension-51fm.md
+  h_df085a9da41ca5 1-461
+docs/progress/2026-10-18-omp-learning-capture-extension-51fm.md
+  h_df085a9da41ca5 1-311
+extension/index.ts
+  h_df085a9da41ca5 1-261
+extension/viewer.ts
+  h_df085a9da41ca5 1-52
+package.json
+  h_df085a9da41ca5 1-21
+scripts/assert-record.ts
+  h_df085a9da41ca5 1-43
+scripts/check-invariants.sh
+  h_df085a9da41ca5 1-25
+scripts/scenarios.sh
+  h_df085a9da41ca5 1-148
+scripts/seed-scenario.ts
+  h_df085a9da41ca5 1-73
+scripts/smoke-extract.sh
+  h_df085a9da41ca5 1-38
+scripts/smoke-retry.sh
+  h_df085a9da41ca5 1-39
+scripts/smoke-sessions.sh
+  h_df085a9da41ca5 1-45
+scripts/smoke-streaming.ts
+  h_df085a9da41ca5 1-102
+src/extract.ts
+  h_df085a9da41ca5 1-299
+src/record.ts
+  h_df085a9da41ca5 1-309
+src/redact.ts
+  h_df085a9da41ca5 1-19
+src/render.ts
+  h_df085a9da41ca5 1-116
+src/snapshot.ts
+  h_df085a9da41ca5 1-372
+src/store.ts
+  h_df085a9da41ca5 1-140
+test/extract.test.ts
+  h_df085a9da41ca5 1-148
+test/fixtures/record-v1-ready.json
+  h_df085a9da41ca5 1-101
+test/fixtures/record-v1-ready.md
+  h_df085a9da41ca5 1-62
+test/record.test.ts
+  h_df085a9da41ca5 1-68
+test/redact.test.ts
+  h_df085a9da41ca5 1-32
+test/render.test.ts
+  h_df085a9da41ca5 1-45
+test/scenarios/a01.json
+  h_df085a9da41ca5 1-15
+test/scenarios/a02.json
+  h_df085a9da41ca5 1-25
+test/scenarios/a05.json
+  h_df085a9da41ca5 1-15
+test/scenarios/a08.json
+  h_df085a9da41ca5 1-65
+test/snapshot.test.ts
+  h_df085a9da41ca5 1-326
+test/store.test.ts
+  h_df085a9da41ca5 1-217
+tsconfig.json
+  h_df085a9da41ca5 1-12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9eeee5cb4141e670b81e9e3ddf722255f0416e82",
+  "prompts": {},
+  "humans": {
+    "h_df085a9da41ca5": {
+      "author": "Kristian Bouw <kbouw@hey.com>"
+    }
+  }
+}
