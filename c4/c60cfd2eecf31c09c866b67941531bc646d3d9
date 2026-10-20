@@ -1,0 +1,50 @@
+.agents/skills/beads/SKILL.md
+  h_df085a9da41ca5 1-80
+.agents/skills/beads/agents/openai.yaml
+  h_df085a9da41ca5 1-4
+.beads/.gitignore
+  h_df085a9da41ca5 1-82
+.beads/README.md
+  h_df085a9da41ca5 1-81
+.beads/config.yaml
+  h_df085a9da41ca5 1-75
+.beads/hooks/post-checkout
+  h_df085a9da41ca5 1-59
+.beads/hooks/post-merge
+  h_df085a9da41ca5 1-59
+.beads/hooks/pre-commit
+  h_df085a9da41ca5 1-59
+.beads/hooks/pre-push
+  h_df085a9da41ca5 1-59
+.beads/hooks/prepare-commit-msg
+  h_df085a9da41ca5 1-59
+.beads/metadata.json
+  h_df085a9da41ca5 1-7
+.claude/settings.json
+  h_df085a9da41ca5 1-15
+.codex/config.toml
+  h_df085a9da41ca5 1-2
+.codex/hooks.json
+  h_df085a9da41ca5 1-51
+.cursor/hooks.json
+  h_df085a9da41ca5 1-20
+.cursor/rules/beads.mdc
+  h_df085a9da41ca5 1-67
+.gitignore
+  h_df085a9da41ca5 1-7
+AGENTS.md
+  h_df085a9da41ca5 1-127
+CLAUDE.md
+  h_df085a9da41ca5 1-77
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c4c60cfd2eecf31c09c866b67941531bc646d3d9",
+  "prompts": {},
+  "humans": {
+    "h_df085a9da41ca5": {
+      "author": "Kristian Bouw <kbouw@hey.com>"
+    }
+  }
+}
