@@ -1,0 +1,14 @@
+.beads/issues.jsonl
+  h_df085a9da41ca5 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5cb1436b174407b5b0e78a374dbbc3bf0e88c8c2",
+  "prompts": {},
+  "humans": {
+    "h_df085a9da41ca5": {
+      "author": "Kristian Bouw <kbouw@hey.com>"
+    }
+  }
+}
