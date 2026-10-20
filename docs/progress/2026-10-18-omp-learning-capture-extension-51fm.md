@@ -289,11 +289,41 @@ The reviewer also confirmed that "redaction never lengthens text" holds for ever
 ## Phase 6: Personal pilot
 
 **Beads phase issue:** `kbx-miga-tc2.6`
+**Class:** standard (6.1 adds an executable script). **Source revision:** `9eeee5c` (Phases 1–5, committed at the start of this phase) plus the uncommitted Phase 6 files `scripts/pilot-report.ts` and `docs/pilot/assessment.md`.
+
+### Harness drift re-verification (omp 18.12.1 → 18.12.2)
+
+The installed binary moved to `omp/18.12.2` after Phases 1–5 were verified on 18.12.1, so the full gate set ran again before the pilot. Every gate passed. `scenarios.sh` reused the reviewed semantic records C31C3453, 6D84AFAF, 9AD6C1B7, BA50D968, 0DAB9604 and 77D8799C, which are the ones cold-reviewed in Phase 5. Nothing was reseeded and no new reviews were needed. **The pilot proceeds on 18.12.2.** The dev dependencies stay pinned at 18.12.1; typecheck against those types passed, and the runtime checks ran in the 18.12.2 binary.
+
+| Command/scenario | Actual output or artifact | Exit code | Date |
+|---|---|---|---|
+| `bun test && bun run typecheck && scripts/check-invariants.sh && scripts/scenarios.sh` on `omp/18.12.2`, tree `9eeee5c` | `72 pass, 0 fail, 178 expect() calls`; `tsc` and the invariants printed nothing; 16 scenario lines: 12 `PASS` (A03 `Captured 0791.` needs_context; A07 `OK partial=1 main=completed injected=0 stale=0`; A09 live `last_error=aborted`; A10 `packet=unchanged input_revision=2 revision=3`; A14 `EACCES … nothing written`; A16 `retry failed as expected`) and 4 `REVIEW … verdict=PASS`. Wall time 104 s | 0 / 0 / 0 / 0 | 2026-10-19 |
 
 ### Verification Evidence
 
 | Command/scenario | Actual output or artifact | Exit code | Date |
 |---|---|---|---|
+| Red: `bun scripts/pilot-report.ts --require-records 20 --require-days 3 --require-assessment docs/pilot/assessment.md` (real store `~/.omp/agent/captures`, which does not exist yet) | full report with `Records: 0` and `n/a` percentiles; `FAIL: 0 records (need 20)`, as predicted, then `FAIL: 0 distinct capture dates (need 3)`, `FAIL: 0 reviewed captures in assessment (need 10)`, `FAIL: assessment Decision section is empty`. Re-run after the review fixes gave the same result | 1 | 2026-10-19 |
+| Report metrics on copies of the 6 scenario records (throwaway store; `captured_at` spread over 3 days) | `ready 4`, `needs_context 2`, 3 dates × 2, `Packet bytes: p50 946 B · p90 8342 B · max 8342 B`, `Freeze latency … p50 1 ms · p90 1 ms`, `Empty request_text: 0` | 0 | 2026-10-19 |
+| Error-class breakdown (throwaway copies set to raw with `aborted`×2, `invalid_output`×1, and 1 with no error) | `Extraction failures …: 3 (50.0%)`, `aborted 2 (33.3%)`, `invalid_output 1 (16.7%)`, `raw, no error 1` | 0 | 2026-10-19 |
+| Assessment gate matrix (throwaway store of 12 captures; filled copies of the template) | valid 10 rows → exit 0; the same file with CRLF → 0; backticked, dashed and escaped-pipe rows → 0; numbered `## 3. Decision` heading → 0. Failing cases: one id ×10 → `reviewed captures 1 (9 rows not counted)`, exit 1; `?` cells + `TBD` → 0 counted, exit 1; ids not in store → `No capture matches DEADBE00`, exit 1; untouched template → exit 1; template with unclosed comment → `decision written no`, exit 1 | — | 2026-10-19 |
+| `bun run typecheck` after the fixes | no output | 0 | 2026-10-19 |
+
+Green needs 6.3 (the user's ≥ 20 real captures over ≥ 3 days and ≥ 10 reviewed rows). Until then the phase stays open.
+
+### Review (cold `reviewer`, phase-local delta: `scripts/pilot-report.ts`, `docs/pilot/assessment.md`)
+
+0 critical, 3 warnings, 2 suggestions. Every metric was confirmed against the schema. All five findings were in the assessment parser; all were fixed and re-run in the gate matrix above.
+- **W1:** CRLF files failed even when correctly filled, because `.` does not match `\r` in the heading regex. Fixed: lines are split on `\r?\n`.
+- **W2:** the gate could pass falsely: one id repeated 10 times, or `?` placeholders, counted as 10 reviewed rows. Fixed: rows resolve through `resolveId` against the loaded store, each capture counts once, and judgement cells must be `y`, `n` or `partial`. The template states these rules.
+- **W3:** backticked ids, escaped `\|` and dashed ids were rejected with no reason given. Fixed: all three are accepted, and every row not counted is listed with its reason.
+- **S4:** an unclosed `<!--` counted as a written Decision. Fixed: an unclosed comment is stripped to the end of the file.
+- **S5:** `## 3. Decision` was not found. Fixed: headings match by substring.
+
+### Gotchas, Insights, and Deviations
+
+- **Deviation:** Phases 1–5 were committed as one commit (`9eeee5c`) at the start of this phase, at the user's request. They could not be split by phase after the fact.
+- **Insight:** the plan's gate said "≥ 10 reviewed rows" and did not define a reviewed row. The review showed that a format-only check passes a gate made of placeholders. The as-built definition is now in plan task 6.1.
 
 ## Resolved Questions
 
@@ -309,3 +339,9 @@ The reviewer also confirmed that "redaction never lengthens text" holds for ever
 ### 2026-10-18
 - Planning-only session; no product code written. The scratch dirs `/tmp/omp-capture-probe` and `/tmp/omp-capture-toolchain` were removed. `/tmp/omp-src-18.12.1` is kept as the source reference for execution and may be re-cloned from tag `v18.12.1` if it is gone.
 - Overengineering review (`review-plan`, cold subagent) applied: 8 cuts, 2 kept — see the plan's Review Log. Schema v1 is now smaller (no `redactions`, `coverage.budgets`, `origin.project_label`, `origin.session_name`); task 2.3 reuses `redactMemorySecrets`, 2.6 uses `RpcClient`, 3.2/3.3 drop the injectable model call in favour of a pure `validateProposal`. Task numbering unchanged; no work had started.
+
+### 2026-10-19 — pilot start
+- `/capture-list` run from `/tmp` with no flags printed `No captures in /Users/kbouw/.omp/agent/captures.` (exit 0), so the symlink install loads globally. The real store still does not exist; listing does not create it.
+- OMP loads extensions only at session start. The four OMP sessions running at handoff were compared against the last extension code change (19 Oct 13:45, `src/extract.ts`). Three predate it and must be restarted before the pilot, so that stale code doesn't write pilot records: pid 10930 has no extension; 26262 has the Phase 1 code, without fixes .7/.8; 61234 predates today's changes. Pid 88706, started 13:50, runs current code. The README now states the restart rule.
+- **Pilot rule:** keep `kbx-miga` on the pilot commit until 6.3 is done. Any change here reaches every session restarted afterwards, and mixed code versions would skew the report.
+- **Review session, later:** run `bun scripts/pilot-report.ts --require-records 20 --require-days 3 --require-assessment docs/pilot/assessment.md`. Read records with `/capture-show <id>` or directly from `~/.omp/agent/captures/*.json`. Scan saved segments for plain `key=value` secrets to decide `kbx-miga-tc2.9`. The judgement columns in `docs/pilot/assessment.md` are the user's to fill. An agent may propose a draft, but must not fill in the judgements.

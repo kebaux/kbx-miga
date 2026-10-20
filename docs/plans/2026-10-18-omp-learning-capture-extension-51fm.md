@@ -405,12 +405,13 @@ Budget rationale: p90 message text is ≤ 2.2 K for user/assistant and ≈ 20 K 
 ### Tasks
 
 - [ ] **6.1 — Pilot report (`scripts/pilot-report.ts`):** reads the default store; prints count by state, distinct local capture dates, extraction failure rate by `last_error.class`, packet bytes p50/p90/max, `timing.publish_ms` p50/p90 (dispatch → frozen record; excludes write/fsync/rename — label it "freeze latency"), records with empty `request_text`. No model calls.
+  **As built (2026-10-19):** the store is `resolveStoreDir()`, so `OMP_CAPTURE_DIR` overrides it. Packet bytes are the UTF-8 bytes of the saved segment text, the same unit as `PACKET_MAX_BYTES`. The failure rate counts records whose *current* `last_error` has a given class, as a share of all records. A successful extraction clears `last_error`, so this is a record rate, not an attempt rate. Raw records with no error print as a separate line. Percentiles use nearest rank. Every unmet `--require-*` prints one `FAIL:` line, and the script exits 1 if there is any. A *reviewed row* names exactly one stored capture, using the same id rules as `/capture-show` (`resolveId`). The five judgement columns must be `y`, `n` or `partial`, and Correction must be filled (`-` for none). Each capture counts once. The report lists every row it did not count, with the reason. The Decision section counts as written if it has any text outside HTML comments.
 - [ ] **6.2 — Assessment template (`docs/pilot/assessment.md`):** one row per reviewed capture: short id, topic matches intent (y/n), situation recognizable, question useful, evidence sufficient, capture interrupted flow, correction; plus a comparison of 3 captures against a topic-only bookmark and a generic summary; and a "Decision: next improvement" section.
 - [ ] **6.3 — Collect and review:** the user captures ~20–30 encounters over ≥ 3 days, revisits a sample after a delay, and fills the assessment. Agent support only on request.
 
 ### Verification
 
-- [ ] **`bun scripts/pilot-report.ts --require-records 20 --require-days 3 --require-assessment docs/pilot/assessment.md`** `(red instrument)` — **Red (predicted):** `FAIL: 0 records (need 20)`, exit 1. **Green:** report printed, `assessment.md` has ≥ 10 reviewed rows and a nonempty Decision section, exit 0.
+- [ ] **`bun scripts/pilot-report.ts --require-records 20 --require-days 3 --require-assessment docs/pilot/assessment.md`** `(red instrument)` — **Red (observed 2026-10-19):** `FAIL: 0 records (need 20)`, as predicted, followed by the date, assessment-row and Decision `FAIL` lines. Exit 1. **Green:** the report is printed, `assessment.md` has ≥ 10 reviewed captures and a nonempty Decision section, and the script exits 0.
 
 ---
 

@@ -10,7 +10,7 @@ Built and verified against **OMP 18.12.1** (macOS arm64, Bun 1.3.14).
 
 ## Install
 
-The extension is a directory symlinked into OMP's extensions folder. It then loads in every OMP session:
+The extension is a directory symlinked into OMP's extensions folder. It then loads in every OMP session started afterwards:
 
 ```bash
 git clone <this repo> ~/Development/kbx-miga   # or wherever it lives
@@ -29,6 +29,8 @@ cd /tmp && OMP_CAPTURE_DIR=$(mktemp -d) omp --no-session -p "/capture install ch
 The check saves a throwaway record in a temp store. It also makes one model call: print-mode `/capture` waits for extraction.
 
 To uninstall, remove the symlink: `rm ~/.omp/agent/extensions/capture`. The records you saved stay in the store.
+
+OMP loads extensions once, when a session starts, straight from this working copy. Restart open sessions after installing, and after any pull, edit or branch switch here; until then they keep running the code they started with.
 
 ## Where records live
 
