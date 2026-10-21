@@ -1,0 +1,14 @@
+.beads/issues.jsonl
+  h_4c0621c62d6384 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2b4ca5f378015d802612d066d9fc682d8610bc7c",
+  "prompts": {},
+  "humans": {
+    "h_4c0621c62d6384": {
+      "author": "Kristian Bouw <kebaux@proton.me>"
+    }
+  }
+}
