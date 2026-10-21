@@ -30,7 +30,7 @@ else
   ln -sfn "$repo" "$link" || exit 1
   echo "Linked $link -> $repo"
 fi
-[ -d "$repo/.git" ] || echo "Note: this copy is not a git clone; update it by downloading again into the same folder."
+[ -e "$repo/.git" ] || echo "Note: this copy is not a git clone; update it by downloading again into the same folder."
 echo "The link points at this exact folder: moving, renaming or deleting it breaks the install."
 
 work=$(mktemp -d)
@@ -42,12 +42,17 @@ out=$(cd "$work" && OMP_CAPTURE_DIR="$store" omp --no-session -p "/capture insta
 code=$?
 printf '%s\n' "$out"
 if [ "$code" -ne 0 ]; then echo "FAIL: omp exited $code"; exit 1; fi
-# Unanchored: a spinner or banner may share the line (e.g. a `\r`-redrawn status).
-if ! grep -qE 'Captured [0-9A-F]{4}\.' <<<"$out"; then
-  echo "FAIL: no 'Captured XXXX.' line; the extension did not load."; exit 1
+# Judge by the store, not the output: if the extension did not load, `/capture` falls through
+# to the model as a plain prompt, and its reply could contain any text. Only the extension
+# writes records here.
+records=$(find "$store" -maxdepth 1 -name '*.json' ! -name '.*' 2>/dev/null)
+count=$(printf '%s' "$records" | grep -c .)
+if [ "$count" -ne 1 ]; then
+  echo "FAIL: expected 1 record in the store, found $count; the extension did not load."; exit 1
 fi
-if grep -qE 'Extraction [0-9A-F]{4}: (ready|needs context)\.' <<<"$out"; then
-  echo "install check: ok (needs context is the expected result: the check session has no history to interpret)"
+# Records are 2-space-indented JSON; the top-level state is the only key at that depth.
+if grep -qE '^  "state": "(ready|needs_context)",$' "$records"; then
+  echo "install check: ok (needs_context is the expected result: the check session has no history to interpret)"
   echo "Inspect it with: OMP_CAPTURE_DIR=$store omp --no-session -p '/capture-list'"
   exit 0
 fi

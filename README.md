@@ -24,7 +24,7 @@ The script:
 1. Warns if your `omp --version` is outside 18.12.x.
 2. Symlinks this folder as `~/.omp/agent/extensions/capture`. If that link already points at another copy, it prints the old target before replacing it. It refuses to replace a real directory.
 3. Runs `/capture install check` in a throwaway store, makes one model call with your current OMP model, and prints the store path so you can inspect the record.
-4. Exits 0 only if the capture was saved **and** interpreted. A saved capture whose extraction failed (no model, bad credentials, unreachable provider or proxy) exits 1 and shows the error.
+4. Exits 0 only if the throwaway store holds exactly one record and its state is `ready` or `needs_context`. It judges by the store, not by printed text, so a slash command that fell through to the model can't pass. A saved capture whose extraction failed (no model, bad credentials, unreachable provider or proxy) exits 1 and shows the error.
 
 A working install prints `Extraction XXXX: needs context.` That is expected: the check session has no conversation for the extraction to interpret.
 
@@ -90,7 +90,7 @@ A record's `state` is one of:
 - **`/capture` is refused** while a child agent's transcript is focused. Return to the main session first.
 - **Extraction uses your session's current model and credentials,** and any proxy you have configured in `models.yml` (headroom here). There is no separate model or login.
 - **An unreachable provider fails as `aborted`, not `provider_error`.** OMP keeps retrying the connection until the extraction deadline, so the failure is recorded only when it expires (90 s by default).
-- **In print (`-p`) and `--mode json` runs, `/capture` and `/capture-retry` wait for the model call before exiting.** Otherwise the process would exit and kill it. `/capture` then also reports the result (`Extraction XXXX: ready.`, `…: needs context.`, or `… failed (<class>): <error>`). In the TUI and over RPC it runs in the background and says nothing after `Captured XXXX.`.
+- **In print (`-p`) and `--mode json` runs, `/capture` and `/capture-retry` wait for the model call before exiting.** Otherwise the process would exit and kill it. `/capture` then also reports the result: `Extraction XXXX: ready.`, `…: needs context.`, `… failed (<class>): <error>`, `… discarded: the capture changed while it ran.` (another window updated it first), or `… could not save its result.` (the store write failed; see the OMP log). In the TUI and over RPC it runs in the background and says nothing after `Captured XXXX.`.
 - **A SIGTERM skips cleanup.** OMP exits without its shutdown hook, for example when an RPC client stops it. An extraction still in flight then leaves the record `raw` with no `last_error`, which looks the same as one still running. Use `/capture-retry`.
 - **Concurrent edits from two OMP windows.** Every change is locked and checked against the record's revision, and a result whose starting revision is out of date is discarded rather than merged. If a retry in one window races a failed extraction from another, the retry is discarded. Run it again. Windows started before an update lock a different file, so restart them all after updating. Stray `<uuid>.json.lock` files beside records come from older versions and can be deleted.
 - **A cut can split a very long secret.** A cut that lands inside a token run of up to 64 characters moves to the edge of that run, so it doesn't split a credential. A longer token, such as a JWT or a fine-grained GitHub token, cut more than 64 characters in, can leave an unredacted fragment at the cut edge.
@@ -99,7 +99,7 @@ A record's `state` is one of:
 
 ## Development
 
-Development needs [Bun](https://bun.sh) (checked with 1.3.14 and 1.4.3). The pinned `@oh-my-pi/*` dev dependencies (18.12.1) only provide typings and tests; at runtime OMP supplies its own.
+Development needs [Bun](https://bun.sh) (checked with 1.3.14 and 1.4.3). `bun install` is required for the tests and live checks: they import the pinned `@oh-my-pi/*` dev dependencies (18.12.1) and call their runtime APIs. The installed extension doesn't use them; OMP supplies its own copies at runtime.
 
 ```bash
 bun install
