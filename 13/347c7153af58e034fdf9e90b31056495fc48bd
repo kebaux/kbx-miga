@@ -1,0 +1,16 @@
+extension/index.ts
+  h_4c0621c62d6384 150-151,154-162
+src/extract.ts
+  h_4c0621c62d6384 231,242
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "13347c7153af58e034fdf9e90b31056495fc48bd",
+  "prompts": {},
+  "humans": {
+    "h_4c0621c62d6384": {
+      "author": "Kristian Bouw <kebaux@proton.me>"
+    }
+  }
+}
