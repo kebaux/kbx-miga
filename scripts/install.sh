@@ -42,10 +42,11 @@ out=$(cd "$work" && OMP_CAPTURE_DIR="$store" omp --no-session -p "/capture insta
 code=$?
 printf '%s\n' "$out"
 if [ "$code" -ne 0 ]; then echo "FAIL: omp exited $code"; exit 1; fi
-if ! grep -q '^Captured [0-9A-F]\{4\}\.$' <<<"$out"; then
+# Unanchored: a spinner or banner may share the line (e.g. a `\r`-redrawn status).
+if ! grep -qE 'Captured [0-9A-F]{4}\.' <<<"$out"; then
   echo "FAIL: no 'Captured XXXX.' line; the extension did not load."; exit 1
 fi
-if grep -qE '^Extraction [0-9A-F]{4}: (ready|needs context)\.$' <<<"$out"; then
+if grep -qE 'Extraction [0-9A-F]{4}: (ready|needs context)\.' <<<"$out"; then
   echo "install check: ok (needs context is the expected result: the check session has no history to interpret)"
   echo "Inspect it with: OMP_CAPTURE_DIR=$store omp --no-session -p '/capture-list'"
   exit 0
