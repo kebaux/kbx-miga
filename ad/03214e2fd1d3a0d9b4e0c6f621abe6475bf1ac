@@ -1,0 +1,14 @@
+scripts/check-invariants.sh
+  h_4c0621c62d6384 25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ad03214e2fd1d3a0d9b4e0c6f621abe6475bf1ac",
+  "prompts": {},
+  "humans": {
+    "h_4c0621c62d6384": {
+      "author": "Kristian Bouw <kebaux@proton.me>"
+    }
+  }
+}
