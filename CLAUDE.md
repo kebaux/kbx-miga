@@ -60,18 +60,23 @@ This protocol applies when ending a Beads implementation workflow. It is subordi
 
 ## Build & Test
 
-_Add your build and test commands here_
-
 ```bash
-# Example:
-# npm install
-# npm test
+bun install                    # dev typings and test deps only; OMP supplies @oh-my-pi/* at runtime
+bun test                       # unit tests
+bun run typecheck              # tsc -p .
+scripts/check-invariants.sh    # prints `invariants: ok`, exit 1 on violation
+scripts/install.sh             # link into ~/.omp/agent/extensions/capture + live install check (one model call)
 ```
+
+Live smokes (real model calls) and scenarios: see README "Development".
+Try an unreleased copy without touching the installed one: `omp --no-extensions --trusted-extension "$PWD/extension/index.ts" …`.
 
 ## Architecture Overview
 
-_Add a brief overview of your project architecture_
+OMP extension. `extension/index.ts` registers `/capture` and the `/capture-*` management commands; `extension/viewer.ts` is the TUI pager. `src/snapshot.ts` builds the source packet from the active branch, `src/redact.ts` scrubs secrets, `src/record.ts` defines and validates the schema-v1 record, `src/store.ts` publishes atomically and mutates under a per-record lock, `src/extract.ts` makes the single tool-less model call, `src/render.ts` renders Markdown. Design and history: `docs/plans/`, `docs/progress/`.
 
 ## Conventions & Patterns
 
-_Add your project-specific conventions here_
+- Never inject into, steer, or side-turn the conversation; model calls only in `src/extract.ts` (enforced by `scripts/check-invariants.sh`).
+- No runtime dependencies beyond node builtins and the `@oh-my-pi/*` packages bundled in the omp binary.
+- Evidence fields of a record are immutable after first publish; every change goes through `updateGuarded` and raises `revision`.

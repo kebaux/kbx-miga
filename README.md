@@ -6,37 +6,37 @@ Type `/capture <what you want to revisit>` at any point, including while the age
 
 Nothing is sent to the conversation. The agent is not interrupted, steered or given a new task.
 
-Built and verified against **OMP 18.12.1** (macOS arm64, Bun 1.3.14).
+Built against **OMP 18.12.1**; installs checked on 18.12.1, 18.12.2 and 18.12.4 (macOS arm64). Other 18.12.x releases are expected to work. Outside that line the extension API may differ, and `scripts/install.sh` warns.
 
-## Install
+## Install (to use it)
 
-The extension is a directory symlinked into OMP's extensions folder. It then loads in every OMP session started afterwards:
+Running the extension needs only OMP: it supplies the `@oh-my-pi/*` packages at runtime. You don't need Bun or `bun install`; those are for [development](#development).
 
-```bash
-git clone <this repo> ~/Development/kbx-miga   # or wherever it lives
-cd ~/Development/kbx-miga
-bun install                                     # dev typings only; there are no runtime dependencies
-mkdir -p ~/.omp/agent/extensions
-ln -sfn "$PWD" ~/.omp/agent/extensions/capture
-```
-
-To check it is loaded:
+Get a copy, either with `git clone https://github.com/kebaux/kbx-miga.git` or by downloading the ZIP from GitHub and unpacking it, then put it somewhere permanent and run:
 
 ```bash
-cd /tmp && OMP_CAPTURE_DIR=$(mktemp -d) omp --no-session -p "/capture install check"   # prints: Captured XXXX.
+cd kbx-miga            # or kbx-miga-main for a ZIP download
+scripts/install.sh
 ```
 
-The check saves a throwaway record in a temp store. It also makes one model call: print-mode `/capture` waits for extraction.
+The script:
+
+1. Warns if your `omp --version` is outside 18.12.x.
+2. Symlinks this folder as `~/.omp/agent/extensions/capture`. If that link already points at another copy, it prints the old target before replacing it. It refuses to replace a real directory.
+3. Runs `/capture install check` in a throwaway store, makes one model call with your current OMP model, and prints the store path so you can inspect the record.
+4. Exits 0 only if the throwaway store holds exactly one record and its state is `ready` or `needs_context`. It judges by the store, not by printed text, so a slash command that fell through to the model can't pass. A saved capture whose extraction failed (no model, bad credentials, unreachable provider or proxy) exits 1 and shows the error.
+
+A working install prints `Extraction XXXX: needs context.` That is expected: the check session has no conversation for the extraction to interpret.
+
+**The link points at this exact folder.** Moving, renaming or deleting the folder breaks the install with no error; run `scripts/install.sh` again from the new location. To update, `git pull` (clone) or download and unpack again into the same folder (ZIP). Then restart open OMP sessions: OMP loads extensions once, when a session starts, so sessions keep running the code they started with until restarted. The same goes after any edit or branch switch here.
 
 To uninstall, remove the symlink: `rm ~/.omp/agent/extensions/capture`. The records you saved stay in the store.
-
-OMP loads extensions once, when a session starts, straight from this working copy. Restart open sessions after installing, and after any pull, edit or branch switch here; until then they keep running the code they started with.
 
 ## Where records live
 
 | Setting | Default | Change with |
 |---|---|---|
-| Store directory | `~/.omp/agent/captures/` (mode `0700`; each record is `<uuid>.json`, mode `0600`) | `OMP_CAPTURE_DIR=/path` |
+| Store directory | `~/.omp/agent/captures/` (mode `0700`; each record is `<uuid>.json`, mode `0600`; per-record lock files live in the hidden `.locks/` subfolder) | `OMP_CAPTURE_DIR=/path` |
 | Extraction deadline | 90 s | `OMP_CAPTURE_TIMEOUT_MS=<positive ms>` |
 | Provider-payload check (debugging only) | off | `OMP_CAPTURE_DEBUG_PAYLOAD=/path/file.json` writes only the `tools`/`tool_choice` the provider received |
 
@@ -90,20 +90,22 @@ A record's `state` is one of:
 - **`/capture` is refused** while a child agent's transcript is focused. Return to the main session first.
 - **Extraction uses your session's current model and credentials,** and any proxy you have configured in `models.yml` (headroom here). There is no separate model or login.
 - **An unreachable provider fails as `aborted`, not `provider_error`.** OMP keeps retrying the connection until the extraction deadline, so the failure is recorded only when it expires (90 s by default).
-- **In print (`-p`) and `--mode json` runs, `/capture` and `/capture-retry` wait for the model call before exiting.** Otherwise the process would exit and kill it. In the TUI and over RPC it runs in the background.
+- **In print (`-p`) and `--mode json` runs, `/capture` and `/capture-retry` wait for the model call before exiting.** Otherwise the process would exit and kill it. `/capture` then also reports the result: `Extraction XXXX: ready.`, `…: needs context.`, `… failed (<class>): <error>`, `… discarded: the capture changed while it ran.` (another window updated it first), or `… could not save its result.` (the store write failed; see the OMP log). In the TUI and over RPC it runs in the background and says nothing after `Captured XXXX.`.
 - **A SIGTERM skips cleanup.** OMP exits without its shutdown hook, for example when an RPC client stops it. An extraction still in flight then leaves the record `raw` with no `last_error`, which looks the same as one still running. Use `/capture-retry`.
-- **Concurrent edits from two OMP windows.** Every change is locked and checked against the record's revision, and a result whose starting revision is out of date is discarded rather than merged. If a retry in one window races a failed extraction from another, the retry is discarded. Run it again.
+- **Concurrent edits from two OMP windows.** Every change is locked and checked against the record's revision, and a result whose starting revision is out of date is discarded rather than merged. If a retry in one window races a failed extraction from another, the retry is discarded. Run it again. Windows started before an update lock a different file, so restart them all after updating. Stray `<uuid>.json.lock` files beside records come from older versions and can be deleted.
 - **A cut can split a very long secret.** A cut that lands inside a token run of up to 64 characters moves to the edge of that run, so it doesn't split a credential. A longer token, such as a JWT or a fine-grained GitHub token, cut more than 64 characters in, can leave an unredacted fragment at the cut edge.
 - **Secrets in plain `key=value` form are not redacted.** For example `token=abc123…`, `password=…` and `API_KEY: …`, unless the value itself matches one of the patterns above. Text you paste into a session is saved as-is.
 - **Records are as private as the session files they copy from.** Back up or delete `~/.omp/agent/captures/` as you would `~/.omp/agent/sessions/`.
 
 ## Development
 
+Development needs [Bun](https://bun.sh) (checked with 1.3.14 and 1.4.3). `bun install` is required for the tests and live checks: they import the pinned `@oh-my-pi/*` dev dependencies (18.12.1) and call their runtime APIs. The installed extension doesn't use them; OMP supplies its own copies at runtime.
+
 ```bash
 bun install
 bun test                          # unit tests (record, snapshot, redaction, extraction, store, render)
 bun run typecheck                 # tsc -p .
-scripts/check-invariants.sh       # no conversation injection; model calls only in src/extract.ts; no runtime deps
+scripts/check-invariants.sh       # prints `invariants: ok`; no conversation injection, model calls only in src/extract.ts, no runtime deps
 ```
 
 Live checks, which make real model calls through your configured provider:

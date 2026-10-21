@@ -187,9 +187,11 @@ describe("killed-process recovery (A13)", () => {
 	test("a lock held by a killed process is released; the next writer acquires within 1 s", async () => {
 		const dir = tempRoot();
 		const r = record();
-		const file = await publishRecord(dir, r);
+		await publishRecord(dir, r);
+		fs.mkdirSync(path.join(dir, ".locks"));
+		const locked = path.join(dir, ".locks", `${r.id}.json`); // updateGuarded's lock target
 		await killAfterReady(
-			`import { withFileLock } from "@oh-my-pi/pi-utils"; await withFileLock(${JSON.stringify(file)}, async () => { console.log("READY"); await Bun.sleep(60_000); });`,
+			`import { withFileLock } from "@oh-my-pi/pi-utils"; await withFileLock(${JSON.stringify(locked)}, async () => { console.log("READY"); await Bun.sleep(60_000); });`,
 		);
 		const started = performance.now();
 		const next = await updateGuarded(dir, r.id, current => applyNote(current, "after the crash", "2026-10-18T03:00:00.000Z"));

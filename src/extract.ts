@@ -228,7 +228,7 @@ export interface ExtractionJob {
 export type ExtractionOutcome =
 	| { outcome: "published"; state: CaptureState }
 	| { outcome: "discarded" }
-	| { outcome: "failed"; kind: ExtractionErrorKind };
+	| { outcome: "failed"; kind: ExtractionErrorKind; message: string };
 
 /**
  * Reads the saved record, makes one tool-less model call, validates, and publishes under the
@@ -239,7 +239,7 @@ export async function extractAndPublish(job: ExtractionJob): Promise<ExtractionO
 		const written = await updateGuarded(job.dir, job.id, current =>
 			applyFailure(current, job.inputRevision, error, new Date().toISOString()),
 		);
-		return written ? { outcome: "failed", kind: error.kind } : { outcome: "discarded" };
+		return written?.last_error ? { outcome: "failed", kind: error.kind, message: written.last_error.message } : { outcome: "discarded" };
 	};
 	const record = await readRecord(path.join(job.dir, `${job.id}.json`));
 	if (record.revision !== job.inputRevision) return { outcome: "discarded" };
