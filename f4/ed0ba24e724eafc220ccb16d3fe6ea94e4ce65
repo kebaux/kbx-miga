@@ -1,0 +1,16 @@
+src/store.ts
+  h_4c0621c62d6384 79,119-123,131-133
+test/store.test.ts
+  h_4c0621c62d6384 190-192,194
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f4ed0ba24e724eafc220ccb16d3fe6ea94e4ce65",
+  "prompts": {},
+  "humans": {
+    "h_4c0621c62d6384": {
+      "author": "Kristian Bouw <kebaux@proton.me>"
+    }
+  }
+}
