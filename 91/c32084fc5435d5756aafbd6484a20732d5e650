@@ -1,0 +1,16 @@
+CLAUDE.md
+  h_4c0621c62d6384 64-68,71-73,76,80-82
+README.md
+  h_4c0621c62d6384 9,11,13-15,18-19,22,24-27,29,31,33,39,93,95,102-103,108
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "91c32084fc5435d5756aafbd6484a20732d5e650",
+  "prompts": {},
+  "humans": {
+    "h_4c0621c62d6384": {
+      "author": "Kristian Bouw <kebaux@proton.me>"
+    }
+  }
+}
