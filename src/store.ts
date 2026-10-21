@@ -76,7 +76,7 @@ export interface Listing {
 
 /**
  * Every valid record in `dir`, newest first. Only `*.json` files count (temp files are
- * dot-prefixed, locks end in `.lock`, exports live in a subdirectory); unreadable or invalid
+ * dot-prefixed, locks live in `.locks/` or end in `.lock`, exports live in a subdirectory); unreadable or invalid
  * files are skipped and named in `invalid`. A store that does not exist yet is empty.
  */
 export async function listRecords(dir: string): Promise<Listing> {
@@ -116,9 +116,11 @@ export function resolveId(records: readonly CaptureRecord[], prefix: string): Ca
 const EVIDENCE_KEYS = ["schema_version", "id", "captured_at", "request_text", "origin", "source_packet"] as const;
 
 /**
- * Read → mutate → publish under an OS lock on `<id>.json.lock` (released on process death).
- * `mutate` returns the next record at exactly `revision + 1`, or null to discard. Never call
- * it around model inference: the lock is held only for read and publish.
+ * Read → mutate → publish under an OS lock on `<dir>/.locks/<id>.json.lock` (released on process
+ * death). The lock file must outlive the lock (unlinking it would let two holders lock different
+ * inodes), so it lives out of sight of the records. `mutate` returns the next record at exactly
+ * `revision + 1`, or null to discard. Never call it around model inference: the lock is held only
+ * for read and publish.
  */
 export async function updateGuarded(
 	dir: string,
@@ -126,7 +128,9 @@ export async function updateGuarded(
 	mutate: (current: CaptureRecord) => CaptureRecord | null,
 ): Promise<CaptureRecord | null> {
 	const file = path.join(dir, `${id}.json`);
-	return withFileLock(file, async () => {
+	const locks = path.join(dir, ".locks");
+	await fs.mkdir(locks, { recursive: true, mode: 0o700 });
+	return withFileLock(path.join(locks, `${id}.json`), async () => {
 		const current = await readRecord(file);
 		const next = mutate(current);
 		if (next === null) return null;
