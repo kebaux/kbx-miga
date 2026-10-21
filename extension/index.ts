@@ -147,10 +147,19 @@ export default function captureExtension(pi: ExtensionAPI): void {
 				publish_ms: record.timing.publish_ms,
 				parts: record.source_packet.parts.length,
 			});
-			say(ctx, `Captured ${record.id.slice(0, 4).toUpperCase()}.`, "info");
+			const short = record.id.slice(0, 4).toUpperCase();
+			say(ctx, `Captured ${short}.`, "info");
 
 			const done = startJob({ dir: storeDir, id: record.id, inputRevision: record.revision, model, apiKey });
-			if (exitsOnReturn(ctx)) await done;
+			// Print and json runs wait anyway, so they report what the extraction left on the record;
+			// the TUI and RPC stay silent after `Captured` (nothing interrupts the session).
+			if (exitsOnReturn(ctx)) {
+				const result = await done;
+				if (!result) say(ctx, `Extraction ${short} could not save its result.`, "warning");
+				else if (result.outcome === "published") say(ctx, `Extraction ${short}: ${result.state.replace("_", " ")}.`, "info");
+				else if (result.outcome === "failed") say(ctx, `Extraction ${short} failed (${result.kind}): ${result.message}`, "warning");
+				else say(ctx, `Extraction ${short} discarded: the capture changed while it ran.`, "warning");
+			}
 		},
 	});
 
