@@ -22,4 +22,5 @@ bun build extension/index.ts --target bun --packages external --outdir "$out" >/
 bad=$(grep -hoE '(from|import)[[:space:]]*\(?"[^"]+"' "$out"/*.js | grep -oE '"[^"]+"' | tr -d '"' | sort -u \
   | bun -e 'import { isBuiltin } from "node:module"; for (const s of (await Bun.stdin.text()).split("\n").filter(Boolean)) if (!isBuiltin(s) && !/^@oh-my-pi\/pi-(ai|utils|tui|coding-agent(\/.+)?)$/.test(s)) console.log(s)')
 [ -z "$bad" ] || { echo "FAIL: disallowed runtime import: $bad"; fail=1; }
+[ "$fail" -eq 0 ] && echo 'invariants: ok'
 exit $fail
