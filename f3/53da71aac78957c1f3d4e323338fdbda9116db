@@ -1,0 +1,14 @@
+scripts/install.sh
+  h_4c0621c62d6384 45-46,49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f353da71aac78957c1f3d4e323338fdbda9116db",
+  "prompts": {},
+  "humans": {
+    "h_4c0621c62d6384": {
+      "author": "Kristian Bouw <kebaux@proton.me>"
+    }
+  }
+}
