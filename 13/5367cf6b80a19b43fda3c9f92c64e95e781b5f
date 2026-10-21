@@ -1,0 +1,16 @@
+README.md
+  h_4c0621c62d6384 27,93,102
+scripts/install.sh
+  h_4c0621c62d6384 33,45-51,53-55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "135367cf6b80a19b43fda3c9f92c64e95e781b5f",
+  "prompts": {},
+  "humans": {
+    "h_4c0621c62d6384": {
+      "author": "Kristian Bouw <kebaux@proton.me>"
+    }
+  }
+}
